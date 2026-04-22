@@ -6,12 +6,19 @@
 <title>LATITUD SUR — Consorcio de Cooperación Internacional</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 
 <!-- NAV -->
 <nav>
-  <a href="#hero" class="nav-logo">LATITUD SUR</a>
+  <a href="#hero" class="nav-logo">
+    <img src="/logo.png" alt="Latitud Sur - Consorcio de Cooperación Internacional" class="logo-shield">
+    <span class="logo-text">
+      <span class="logo-title">LATITUD SUR</span>
+      <span class="logo-subtitle">Consorcio de Cooperación Internacional</span>
+    </span>
+  </a>
   <ul class="nav-links">
     <li><a href="#about">Nosotros</a></li>
     <li><a href="#pilares">Pilares</a></li>
@@ -459,26 +466,26 @@
     <div class="form-row">
       <div class="form-field">
         <label>Nombre completo</label>
-        <input type="text" placeholder="Su nombre">
+        <input type="text" id="nombre" placeholder="Su nombre">
       </div>
       <div class="form-field">
         <label>Empresa</label>
-        <input type="text" placeholder="Nombre de empresa">
+        <input type="text" id="empresa" placeholder="Nombre de empresa">
       </div>
     </div>
     <div class="form-row">
       <div class="form-field">
         <label>Email</label>
-        <input type="email" placeholder="correo@empresa.com">
+        <input type="email" id="email" placeholder="correo@empresa.com">
       </div>
       <div class="form-field">
         <label>Teléfono</label>
-        <input type="tel" placeholder="+54 ...">
+        <input type="tel" id="telefono" placeholder="+54 ...">
       </div>
     </div>
     <div class="form-field">
       <label>Área de interés</label>
-      <select>
+      <select id="area">
         <option value="">Seleccionar servicio...</option>
         <option>Consultoría Estratégica Internacional</option>
         <option>Minería / Petróleo / Energía y Gas</option>
@@ -494,12 +501,13 @@
     </div>
     <div class="form-field">
       <label>Mensaje</label>
-      <textarea placeholder="Cuéntenos sobre su empresa y necesidades..."></textarea>
+      <textarea id="mensaje" placeholder="Cuéntenos sobre su empresa y necesidades..."></textarea>
     </div>
-    <button class="form-submit">Enviar Consulta →</button>
+    <button class="form-submit" id="btn-enviar" onclick="enviarFormulario()">Enviar Consulta →</button>
+    <p id="form-status" style="margin-top:12px; font-size:14px; display:none;"></p>
   </div>
 </section>
-
+ 
 <!-- FOOTER -->
 <footer>
   <div class="footer-top">
@@ -539,17 +547,67 @@
   <div class="footer-bottom">
     <span class="footer-copy">© 2026 Latitud Sur Consorcio de Cooperación Internacional. Todos los derechos reservados.</span>
     <span class="footer-uncitral">Tribunal Arbitral Internacional — Normas UNCITRAL</span>
-   <a 
-  href="https://www.linkedin.com/in/ornella-mut-04757a274?utm_source=share_via&utm_content=profile&utm_medium=member_ios" 
-  target="_blank" 
-  rel="noopener noreferrer"
-  class="footer-uncitral"
->
-  Desarrollado por Ornella Mut
-</a>
+    <a 
+      href="https://www.linkedin.com/in/ornella-mut-04757a274?utm_source=share_via&utm_content=profile&utm_medium=member_ios" 
+      target="_blank" 
+      rel="noopener noreferrer"
+      class="footer-uncitral"
+    >
+      Desarrollado por Ornella Mut
+    </a>
   </div>
 </footer>
-
+ 
 <script src="script.js"></script>
+ 
+<script>
+  // ── EmailJS ──────────────────────────────────────────────
+  emailjs.init("HUcWJnrQKPgc8f0qO");
+ 
+  function enviarFormulario() {
+    const btn    = document.getElementById("btn-enviar");
+    const status = document.getElementById("form-status");
+ 
+    const nombre   = document.getElementById("nombre").value.trim();
+    const empresa  = document.getElementById("empresa").value.trim();
+    const email    = document.getElementById("email").value.trim();
+    const telefono = document.getElementById("telefono").value.trim();
+    const area     = document.getElementById("area").value;
+    const mensaje  = document.getElementById("mensaje").value.trim();
+ 
+    if (!nombre || !email || !mensaje) {
+      status.style.display  = "block";
+      status.style.color    = "#c0392b";
+      status.textContent    = "Por favor completá al menos nombre, email y mensaje.";
+      return;
+    }
+ 
+    btn.disabled    = true;
+    btn.textContent = "Enviando...";
+ 
+    emailjs.send("service_nw60caa", "template_fu5xl2a", {
+      nombre, empresa, email, telefono, area, mensaje
+    })
+    .then(() => {
+      status.style.display  = "block";
+      status.style.color    = "#27ae60";
+      status.textContent    = "✓ Mensaje enviado correctamente. Nos pondremos en contacto pronto.";
+      btn.textContent       = "¡Enviado!";
+      ["nombre","empresa","email","telefono","mensaje"].forEach(id => {
+        document.getElementById(id).value = "";
+      });
+      document.getElementById("area").selectedIndex = 0;
+    })
+    .catch((err) => {
+      status.style.display  = "block";
+      status.style.color    = "#c0392b";
+      status.textContent    = "Hubo un error al enviar. Por favor intentá de nuevo.";
+      btn.disabled          = false;
+      btn.textContent       = "Enviar Consulta →";
+      console.error("EmailJS error:", err);
+    });
+  }
+</script>
+ 
 </body>
 </html>
